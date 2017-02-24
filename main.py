@@ -19,6 +19,21 @@ def main():
     if args.RSA:    # create RSA key pair
         RSA()
 
+# get random numbers from Random.org HTTP API
+def get_nums(total, min_val, max_val, base):
+    vals = []
+    # issue least number of requests by always requesting the max number of numbers (10000)
+    while total > 10000:
+        resp, val = httplib2.Http().request("https://www.random.org/integers/?num=" + str(10000) + "&min=" + str(min_val) + "&max=" + str(max_val) + "&col=1&base=" + str(base) + "&format=plain&rnd=new")
+        val = val.split('\n')
+        vals.extend(val)
+        total -= 10000
+    # get leftover numbers
+    resp, val = httplib2.Http().request("https://www.random.org/integers/?num=" + str(total) + "&min=" + str(min_val) + "&max=" + str(max_val) + "&col=1&base=" + str(base) + "&format=plain&rnd=new")
+    val = val.split('\n')
+    vals.extend(val)
+    return vals
+
 def bitmap():
     w = 128 # width of image
     h = 128 # height of image
@@ -26,16 +41,7 @@ def bitmap():
     pixels = img.load() # create the pixel map
     vals = []
     total = w*h*3   # number of pixels left
-    # issue least number of requests by always requesting the max number of numbers (10000)
-    while total > 10000:
-        resp, row = httplib2.Http().request("https://www.random.org/integers/?num=" + str(10000) + "&min=1&max=255&col=1&base=10&format=plain&rnd=new")
-        row = row.split('\n')
-        vals.extend(row)
-        total -= 10000
-    # get leftover numbers
-    resp, row = httplib2.Http().request("https://www.random.org/integers/?num=" + str(total) + "&min=1&max=255&col=1&base=10&format=plain&rnd=new")
-    row = row.split('\n')
-    vals.extend(row)
+    vals = get_nums(total, 0, 255, 10)  # get random numbers from Random.org
     # create bitmap
     for i in range(w):
         for j in range(h):
@@ -56,21 +62,11 @@ def bitmap():
     #img.show()
 
 def wav():
-
     samps = 44100   # number of samples per second
     vals = []
     total = 3*samps   # number of samples
     max_freq = 32767
-    # issue least number of requests by always requesting the max number of numbers (10000)
-    while total > 10000:
-        resp, val = httplib2.Http().request("https://www.random.org/integers/?num=" + str(10000) + "&min=" + str(-1*max_freq) + "&max=" + str(max_freq) + "&col=1&base=10&format=plain&rnd=new")
-        val = val.split('\n')
-        vals.extend(val)
-        total -= 10000
-    # get leftover numbers
-    resp, val = httplib2.Http().request("https://www.random.org/integers/?num=" + str(total) + "&min=" + str(-1*max_freq) + "&max=" + str(max_freq) + "&col=1&base=10&format=plain&rnd=new")
-    val = val.split('\n')
-    vals.extend(val)
+    vals = get_nums(total, -1*max_freq, max_freq, 10)   # get random numbers from Random.org
     # create wav file
     outfile = wave.open('white_noise.wav', 'w')
     outfile.setparams((2, 2, samps, 0, 'NONE', 'not compressed'))
