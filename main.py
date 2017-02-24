@@ -9,12 +9,12 @@ def main():
     # parse flags to decide what to do
     parser = argparse.ArgumentParser('Choose what to use the random.org random numbers for.')
     parser.add_argument('-bitmap', help='create 128x128 RGB bitmap.', action='store_true')
-    parser.add_argument('-wav', help='create white noise wav file.', action='store_true')
+    parser.add_argument('-wav', help='create white white_noise.wav file.', action='store_true')
     parser.add_argument('-RSA', help='create RSA key pair.', action='store_true')
     args = parser.parse_args()
     if args.bitmap: # create 128x128 RGB bitmap
         bitmap()
-    if args.wav:    # create white noise wav file
+    if args.wav:    # create white white_noise.wav file
         wav()
     if args.RSA:    # create RSA key pair
         RSA()
@@ -60,18 +60,19 @@ def wav():
     samps = 44100   # number of samples per second
     vals = []
     total = 3*samps   # number of samples
+    max_freq = 32767
     # issue least number of requests by always requesting the max number of numbers (10000)
     while total > 10000:
-        resp, val = httplib2.Http().request("https://www.random.org/integers/?num=" + str(10000) + "&min=1&max=255&col=1&base=10&format=plain&rnd=new")
+        resp, val = httplib2.Http().request("https://www.random.org/integers/?num=" + str(10000) + "&min=" + str(-1*max_freq) + "&max=" + str(max_freq) + "&col=1&base=10&format=plain&rnd=new")
         val = val.split('\n')
         vals.extend(val)
         total -= 10000
     # get leftover numbers
-    resp, val = httplib2.Http().request("https://www.random.org/integers/?num=" + str(total) + "&min=1&max=255&col=1&base=10&format=plain&rnd=new")
+    resp, val = httplib2.Http().request("https://www.random.org/integers/?num=" + str(total) + "&min=" + str(-1*max_freq) + "&max=" + str(max_freq) + "&col=1&base=10&format=plain&rnd=new")
     val = val.split('\n')
     vals.extend(val)
     # create wav file
-    outfile = wave.open('noise.wav', 'w')
+    outfile = wave.open('white_noise.wav', 'w')
     outfile.setparams((2, 2, samps, 0, 'NONE', 'not compressed'))
     # fill file with random values (white noise)
     for i in range(samps*3):
@@ -82,7 +83,7 @@ def wav():
 
     # psuedo random testing to keep from going over quota
     #samps = 44100
-    #outfile = wave.open('noise.wav', 'w')
+    #outfile = wave.open('white_noise.wav', 'w')
     #outfile.setparams((2, 2, samps, 0, 'NONE', 'not compressed'))
 
     #for i in range(samps*3):
