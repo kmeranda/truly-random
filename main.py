@@ -39,15 +39,14 @@ def bitmap():
     h = 128 # height of image
     img = Image.new( 'RGB', (w,h), "black") # create a new black image
     pixels = img.load() # create the pixel map
-    vals = []
-    total = w*h*3   # number of pixels left
+    total = w*h*3   # number of pixels
     vals = get_nums(total, 0, 255, 10)  # get random numbers from Random.org
     # create bitmap
     for i in range(w):
         for j in range(h):
             pos = 3*(i*h+j)
-            pixels[i,j] = (vals[pos], vals[pos+1], vals[pos+2])
-    img.save('temp.bmp')    # save generated image as temp.bmp
+            pixels[i,j] = (int(vals[pos]), int(vals[pos+1]), int(vals[pos+2]))
+    img.save('temp.bmp')    # save generated image as rand.bmp
 
     # psuedo random testing to keep from going over quota
     #w = 128
@@ -72,7 +71,7 @@ def wav():
     outfile.setparams((2, 2, samps, 0, 'NONE', 'not compressed'))
     # fill file with random values (white noise)
     for i in range(samps*3):
-        packed_value = struct.pack('h', vals[i])
+        packed_value = struct.pack('h', int(vals[i]))
         outfile.writeframes(packed_value)
         outfile.writeframes(packed_value)
     outfile.close()
@@ -90,6 +89,7 @@ def wav():
     #outfile.close()
 
 def RSA():
+    
     pass
 
 if __name__ == '__main__':
